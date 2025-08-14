@@ -11,8 +11,8 @@ st.set_page_config(
 # 세션 상태 초기화
 if 'counter_a' not in st.session_state:
     st.session_state.counter_a = 0  # Live cells
-if 'counter_f' not in st.session_state:
-    st.session_state.counter_f = 0  # Dead cells
+if 'counter_s' not in st.session_state:
+    st.session_state.counter_s = 0  # Dead cells
 
 # 제목
 st.title("🧬 Cell Counter")
@@ -22,7 +22,7 @@ js_code = f"""
 <div id="keyboardCounter" style="padding: 30px; border: 2px solid #ddd; border-radius: 15px; background-color: #f9f9f9; min-height: 600px; outline: none;" tabindex="0">
     
     <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 16px;">
-        이 영역을 클릭한 후 A (Live) 또는 F (Dead) 키를 누르세요
+        이 영역을 클릭한 후 A (Live) 또는 S (Dead) 키를 누르세요
     </p>
     
     <div style="display: flex; justify-content: space-around; margin: 30px 0;">
@@ -31,8 +31,8 @@ js_code = f"""
             <div id="counterA" style="font-size: 56px; font-weight: bold; color: #00b894; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">0</div>
         </div>
         <div style="text-align: center;">
-            <h3 style="color: #e74c3c; margin-bottom: 15px;">🔴 Dead Cells (F키)</h3>
-            <div id="counterF" style="font-size: 56px; font-weight: bold; color: #e74c3c; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">0</div>
+            <h3 style="color: #e74c3c; margin-bottom: 15px;">🔴 Dead Cells (S키)</h3>
+            <div id="counterS" style="font-size: 56px; font-weight: bold; color: #e74c3c; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">0</div>
         </div>
     </div>
     
@@ -49,13 +49,13 @@ js_code = f"""
     <div style="text-align: center; margin: 25px 0;">
         <button onclick="resetCounters()" style="background: #ff7979; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🔄 전체 리셋</button>
         <button onclick="resetA()" style="background: #00b894; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🟢 Live 리셋</button>
-        <button onclick="resetF()" style="background: #e74c3c; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🔴 Dead 리셋</button>
+        <button onclick="resetS()" style="background: #e74c3c; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🔴 Dead 리셋</button>
     </div>
 </div>
 
 <script>
 let counterA = {st.session_state.counter_a};
-let counterF = {st.session_state.counter_f};
+let counterS = {st.session_state.counter_s};
 let audioContext = null;
 
 // 오디오 컨텍스트 초기화
@@ -105,17 +105,17 @@ function playSoundA() {{
     playSound(800, 150);
 }}
 
-// F키 소리 (낮은 톤)
-function playSoundF() {{
+// S키 소리 (낮은 톤)
+function playSoundS() {{
     playSound(400, 150);
 }}
 
 function updateDisplay() {{
     document.getElementById('counterA').textContent = counterA;
-    document.getElementById('counterF').textContent = counterF;
+    document.getElementById('counterS').textContent = counterS;
     
     // Viability 계산
-    const totalCells = counterA + counterF;
+    const totalCells = counterA + counterS;
     let viability = 0;
     
     if (totalCells > 0) {{
@@ -144,7 +144,7 @@ function updateDisplay() {{
             type: 'streamlit:setComponentValue',
             value: {{
                 counter_a: counterA,
-                counter_f: counterF,
+                counter_s: counterS,
                 viability: viability,
                 total: totalCells
             }}
@@ -156,7 +156,7 @@ function updateDisplay() {{
 
 function resetCounters() {{
     counterA = 0;
-    counterF = 0;
+    counterS = 0;
     updateDisplay();
 }}
 
@@ -165,8 +165,8 @@ function resetA() {{
     updateDisplay();
 }}
 
-function resetF() {{
-    counterF = 0;
+function resetS() {{
+    counterS = 0;
     updateDisplay();
 }}
 
@@ -182,9 +182,9 @@ document.getElementById('keyboardCounter').addEventListener('keydown', function(
         playSoundA();
         updateDisplay();
         event.preventDefault();
-    }} else if (event.key === 'f' || event.key === 'F') {{
-        counterF++;
-        playSoundF();
+    }} else if (event.key === 's' || event.key === 'S') {{
+        counterS++;
+        playSoundS();
         updateDisplay();
         event.preventDefault();
     }}
@@ -223,8 +223,8 @@ component_value = components.html(js_code, height=700)
 if component_value and isinstance(component_value, dict):
     if 'counter_a' in component_value:
         st.session_state.counter_a = component_value['counter_a']
-    if 'counter_f' in component_value:
-        st.session_state.counter_f = component_value['counter_f']
+    if 'counter_s' in component_value:
+        st.session_state.counter_s = component_value['counter_s']
 
 # 사용법 안내
 with st.expander("📖 사용법"):
@@ -233,7 +233,7 @@ with st.expander("📖 사용법"):
     
     1. **위의 회색 박스를 클릭**하여 활성화하세요
     2. **A키**를 누르면 Live Cell 카운터가 증가합니다 🟢
-    3. **F키**를 누르면 Dead Cell 카운터가 증가합니다 🔴
+    3. **S키**를 누르면 Dead Cell 카운터가 증가합니다 🔴
     4. **Viability**가 실시간으로 계산됩니다: Live / (Live + Dead) × 100
            
     ### 💡 팁
@@ -247,5 +247,5 @@ with st.expander("📖 사용법"):
 st.markdown("---")
 st.info("SMC 이식외과 - Live: {} cells, Dead: {} cells".format(
     st.session_state.counter_a, 
-    st.session_state.counter_f
+    st.session_state.counter_s
 ))
