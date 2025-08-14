@@ -179,7 +179,7 @@ document.getElementById('boardCounter').addEventListener('down', function(event)
         playSoundA(); // A키 소리
         updateDisplay();
         event.preventDefault();
-    } else if (event.key === 'd' || event.key === 'D') {
+    } else if (event.key === 'f' || event.key === 'F') {
         counterF++;
         playSoundF(); // F키 소리
         updateDisplay();
@@ -224,7 +224,7 @@ with st.expander("📖 사용법"):
     
     1. **위의 회색 박스를 클릭**하여 활성화하세요
     2. **A키**를 누르면 Live Cell 카운터가 증가합니다 🟢
-    3. **D키**를 누르면 Dead Cell 카운터가 증가합니다 🔴
+    3. **F키**를 누르면 Dead Cell 카운터가 증가합니다 🔴
     4. **Viability**가 실시간으로 계산됩니다: Live / (Live + Dead) × 100
            
     ### 💡 팁
@@ -240,6 +240,7 @@ st.info("SMC 이식외과".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
+
 
 
 
