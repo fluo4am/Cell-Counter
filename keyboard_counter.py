@@ -20,7 +20,7 @@ st.title("🧬 Cell Counter")
 # JavaScript 키보드 감지 코드
 js_code = """
 <div id="keyboardCounter" style="padding: 30px; border: 2px solid #ddd; border-radius: 15px; background-color: #f9f9f9; min-height: 600px;">
-    <h2 style="text-align: center; color: #333; margin-bottom: 10px;">Cell Counter</h2>
+    
     <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 16px;">
         이 영역을 클릭한 후 A (Live) 또는 F (Dead) 키를 누르세요
     </p>
@@ -286,5 +286,6 @@ st.info("🔢 현재 상태 - A키 카운터: {} | F키 카운터: {}".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
+
 
 
