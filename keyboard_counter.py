@@ -15,7 +15,7 @@ if 'counter_f' not in st.session_state:
     st.session_state.counter_f = 0  # Dead cells
 
 # 제목
-st.title("🧬 Cell Counter & Viability Calculator")
+st.title("🧬 Cell Counter")
 
 # JavaScript 키보드 감지 코드
 js_code = """
@@ -286,4 +286,5 @@ st.info("🔢 현재 상태 - A키 카운터: {} | F키 카운터: {}".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
+
 
