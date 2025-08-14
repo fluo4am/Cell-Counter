@@ -43,14 +43,61 @@ js_code = """
         <button onclick="resetF()" style="background: #00b894; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">카운터 2 리셋</button>
     </div>
     
+    <div style="text-align: center; margin: 15px 0;">
+        <button onclick="playSoundA()" style="background: #fd79a8; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 12px;">🔊 A음 테스트</button>
+        <button onclick="playSoundF()" style="background: #fdcb6e; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 12px;">🔊 F음 테스트</button>
+    </div>
+    
     <p style="text-align: center; color: #888; margin-top: 20px; font-size: 14px;">
-        💡 팁: 이 박스를 클릭한 후 키보드를 사용하세요
+        💡 팁: 이 박스를 클릭한 후 키보드를 사용하세요<br>
+        🔊 A키: 높은음 (800Hz) | F키: 낮은음 (400Hz)
     </p>
 </div>
 
 <script>
 let counterA = 0;
 let counterF = 0;
+let audioContext = null;
+
+// 오디오 컨텍스트 초기화
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+// 소리 재생 함수
+function playSound(frequency, duration = 200) {
+    if (!audioContext) {
+        initAudio();
+    }
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    
+    // 볼륨 조절 (페이드 아웃 효과)
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration / 1000);
+}
+
+// A키 소리 (높은 톤)
+function playSoundA() {
+    playSound(800, 150); // 800Hz, 150ms
+}
+
+// F키 소리 (낮은 톤)
+function playSoundF() {
+    playSound(400, 150); // 400Hz, 150ms
+}
 
 // Streamlit 세션 상태에서 초기값 가져오기
 if (window.parent && window.parent.document) {
@@ -93,12 +140,19 @@ function resetF() {
 
 // 키보드 이벤트 리스너
 document.getElementById('keyboardCounter').addEventListener('keydown', function(event) {
+    // 첫 번째 키 입력 시 오디오 컨텍스트 활성화
+    if (!audioContext) {
+        initAudio();
+    }
+    
     if (event.key === 'a' || event.key === 'A') {
         counterA++;
+        playSoundA(); // A키 소리
         updateDisplay();
         event.preventDefault();
     } else if (event.key === 'f' || event.key === 'F') {
         counterF++;
+        playSoundF(); // F키 소리
         updateDisplay();
         event.preventDefault();
     }
