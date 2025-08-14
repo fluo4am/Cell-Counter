@@ -186,35 +186,8 @@ if component_value and isinstance(component_value, dict):
     if 'counter_f' in component_value:
         st.session_state.counter_f = component_value['counter_f']
 
-# 현재 상태 표시 (백업용)
+# 간단한 상태 표시만 유지
 st.markdown("---")
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric(
-        label="카운터 1 (A키)", 
-        value=st.session_state.counter_a,
-        help="A 키를 누르면 증가합니다"
-    )
-    if st.button("카운터 1 리셋", key="reset_a"):
-        st.session_state.counter_a = 0
-        st.rerun()
-
-with col2:
-    st.metric(
-        label="카운터 2 (F키)", 
-        value=st.session_state.counter_f,
-        help="F 키를 누르면 증가합니다"
-    )
-    if st.button("카운터 2 리셋", key="reset_f"):
-        st.session_state.counter_f = 0
-        st.rerun()
-
-# 전체 리셋 버튼
-if st.button("🔄 전체 리셋", type="primary"):
-    st.session_state.counter_a = 0
-    st.session_state.counter_f = 0
-    st.rerun()
 
 # 사용법 안내
 st.markdown("---")
