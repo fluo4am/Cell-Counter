@@ -126,7 +126,7 @@ window.addEventListener('load', function() {
 component_value = components.html(js_code, height=400)
 
 # 카운터 값 업데이트 (JavaScript에서 받은 데이터)
-if component_value:
+if component_value and isinstance(component_value, dict):
     if 'counter_a' in component_value:
         st.session_state.counter_a = component_value['counter_a']
     if 'counter_f' in component_value:
