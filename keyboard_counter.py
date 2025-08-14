@@ -215,7 +215,7 @@ window.addEventListener('load', function() {
 """
 
 # JavaScript 컴포넌트 표시
-component_value = components.html(js_code, height=650)
+component_value = components.html(js_code, height=900)
 
 # 카운터 값 업데이트 (JavaScript에서 받은 데이터)
 if component_value and isinstance(component_value, dict):
@@ -286,3 +286,4 @@ st.info("🔢 현재 상태 - A키 카운터: {} | F키 카운터: {}".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
+
