@@ -215,37 +215,6 @@ if component_value and isinstance(component_value, dict):
     if 'counter_f' in component_value:
         st.session_state.counter_f = component_value['counter_f']
 
-# 실시간 통계 표시
-total_cells = st.session_state.counter_a + st.session_state.counter_f
-if total_cells > 0:
-    viability = (st.session_state.counter_a / total_cells) * 100
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("🟢 Live Cells", st.session_state.counter_a)
-    with col2:
-        st.metric("🔴 Dead Cells", st.session_state.counter_f)  
-    with col3:
-        st.metric("📊 Viability", f"{viability:.1f}%")
-        
-    # 생존율에 따른 상태 메시지
-    if viability >= 90:
-        st.success(f"🎉 Excellent viability! ({viability:.1f}%)")
-    elif viability >= 70:
-        st.info(f"👍 Good viability ({viability:.1f}%)")
-    elif viability >= 50:
-        st.warning(f"⚠️ Moderate viability ({viability:.1f}%)")
-    else:
-        st.error(f"❌ Low viability ({viability:.1f}%)")
-else:
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("🟢 Live Cells", 0)
-    with col2:
-        st.metric("🔴 Dead Cells", 0)
-    with col3:
-        st.metric("📊 Viability", "0.0%")
-
 # 간단한 상태 표시만 유지
 
 # 사용법 안내
@@ -271,6 +240,7 @@ st.info("SMC 이식외과".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
+
 
 
 
