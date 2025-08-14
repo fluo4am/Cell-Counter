@@ -259,7 +259,7 @@ with st.expander("📖 사용법"):
     4. **Viability**가 실시간으로 계산됩니다: Live / (Live + Dead) × 100
            
     ### 💡 팁
-    - 박스가 파란색 테두리로 둘러싸이면 활성화된 상태입니다
+    - 박스가 검정색 테두리로 둘러싸이면 활성화된 상태입니다
     - Viability 색상이 결과에 따라 자동으로 변경됩니다
     - 각 셀 타입별로 다른 소리가 재생됩니다
     - 리셋 버튼으로 개별 또는 전체 카운터를 초기화할 수 있습니다
@@ -271,6 +271,7 @@ st.info("🔢 현재 상태 - A키 카운터: {} | F키 카운터: {}".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
+
 
 
 
