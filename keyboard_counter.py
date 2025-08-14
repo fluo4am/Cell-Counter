@@ -16,7 +16,6 @@ if 'counter_f' not in st.session_state:
 
 # 제목
 st.title("🔢 키보드 카운터")
-st.markdown("---")
 
 # JavaScript 키보드 감지 코드
 js_code = """
@@ -187,10 +186,8 @@ if component_value and isinstance(component_value, dict):
         st.session_state.counter_f = component_value['counter_f']
 
 # 간단한 상태 표시만 유지
-st.markdown("---")
 
 # 사용법 안내
-st.markdown("---")
 with st.expander("📖 사용법"):
     st.markdown("""
     ### 키보드 카운터 사용법
