@@ -52,16 +52,7 @@ js_code = """
         <button onclick="resetF()" style="background: #e74c3c; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🔴 Dead 리셋</button>
     </div>
     
-    <!-- 소리 테스트 버튼들 -->
-    <div style="text-align: center; margin: 20px 0;">
-        <button onclick="playSoundA()" style="background: #fd79a8; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 12px;">🔊 Live 소리</button>
-        <button onclick="playSoundF()" style="background: #fdcb6e; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 12px;">🔊 Dead 소리</button>
-    </div>
     
-    <div style="text-align: center; color: #888; margin-top: 25px; font-size: 14px; line-height: 1.5;">
-        💡 <strong>사용법:</strong> 이 박스를 클릭한 후 키보드를 사용하세요<br>
-        🔊 A키: Live cell (높은음 800Hz) | F키: Dead cell (낮은음 400Hz)
-    </div>
 </div>
 
 <script>
@@ -286,6 +277,7 @@ st.info("🔢 현재 상태 - A키 카운터: {} | F키 카운터: {}".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
+
 
 
 
