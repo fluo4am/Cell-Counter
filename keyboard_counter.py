@@ -18,8 +18,8 @@ if 'counter_f' not in st.session_state:
 st.title("🧬 Cell Counter")
 
 # JavaScript 키보드 감지 코드
-js_code = """
-<div id="keyboardCounter" style="padding: 30px; border: 2px solid #ddd; border-radius: 15px; background-color: #f9f9f9; min-height: 600px;">
+js_code = f"""
+<div id="keyboardCounter" style="padding: 30px; border: 2px solid #ddd; border-radius: 15px; background-color: #f9f9f9; min-height: 600px; outline: none;" tabindex="0">
     
     <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 16px;">
         이 영역을 클릭한 후 A (Live) 또는 F (Dead) 키를 누르세요
@@ -51,171 +51,180 @@ js_code = """
         <button onclick="resetA()" style="background: #00b894; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🟢 Live 리셋</button>
         <button onclick="resetF()" style="background: #e74c3c; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🔴 Dead 리셋</button>
     </div>
-    
-    
 </div>
 
 <script>
-let counterA = 0;
-let counterF = 0;
+let counterA = {st.session_state.counter_a};
+let counterF = {st.session_state.counter_f};
 let audioContext = null;
 
 // 오디오 컨텍스트 초기화
-function initAudio() {
-    if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
-}
+function initAudio() {{
+    try {{
+        if (!audioContext) {{
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }}
+        if (audioContext.state === 'suspended') {{
+            audioContext.resume();
+        }}
+    }} catch (e) {{
+        console.log('오디오 컨텍스트 초기화 실패:', e);
+    }}
+}}
 
 // 소리 재생 함수
-function playSound(frequency, duration = 200) {
-    if (!audioContext) {
-        initAudio();
-    }
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = frequency;
-    oscillator.type = 'sine';
-    
-    // 볼륨 조절 (페이드 아웃 효과)
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration / 1000);
-}
+function playSound(frequency, duration = 200) {{
+    try {{
+        if (!audioContext) {{
+            initAudio();
+        }}
+        
+        if (audioContext && audioContext.state === 'running') {{
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }}
+    }} catch (e) {{
+        console.log('소리 재생 실패:', e);
+    }}
+}}
 
 // A키 소리 (높은 톤)
-function playSoundA() {
-    playSound(800, 150); // 800Hz, 150ms
-}
+function playSoundA() {{
+    playSound(800, 150);
+}}
 
 // F키 소리 (낮은 톤)
-function playSoundF() {
-    playSound(400, 150); // 400Hz, 150ms
-}
+function playSoundF() {{
+    playSound(400, 150);
+}}
 
-// Streamlit 세션 상태에서 초기값 가져오기
-if (window.parent && window.parent.document) {
-    const streamlitData = window.parent.document.querySelector('[data-testid="stApp"]');
-    if (streamlitData) {
-        counterA = """ + str(st.session_state.counter_a) + """;
-        counterF = """ + str(st.session_state.counter_f) + """;
-    }
-}
-
-function updateDisplay() {
+function updateDisplay() {{
     document.getElementById('counterA').textContent = counterA;
     document.getElementById('counterF').textContent = counterF;
     
-    // Viability 계산 (Live / (Live + Dead) * 100)
+    // Viability 계산
     const totalCells = counterA + counterF;
     let viability = 0;
     
-    if (totalCells > 0) {
+    if (totalCells > 0) {{
         viability = (counterA / totalCells) * 100;
-    }
+    }}
     
-    // Viability 표시 업데이트
     document.getElementById('viability').textContent = viability.toFixed(1) + '%';
     document.getElementById('totalCells').textContent = 'Total: ' + totalCells + ' cells';
     
     // Viability에 따른 색상 변경
-    const viabilityElement = document.getElementById('viability');
-    const viabilityContainer = viabilityElement.parentElement;
+    const viabilityContainer = document.getElementById('viability').parentElement;
     
-    if (viability >= 90) {
-        viabilityContainer.style.background = 'linear-gradient(135deg, #00b894 0%, #55a3ff 100%)'; // 매우 좋음 - 녹색/파랑
-    } else if (viability >= 70) {
-        viabilityContainer.style.background = 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)'; // 좋음 - 노랑/주황
-    } else if (viability >= 50) {
-        viabilityContainer.style.background = 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)'; // 보통 - 분홍/노랑
-    } else {
-        viabilityContainer.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)'; // 나쁨 - 빨강
-    }
+    if (viability >= 90) {{
+        viabilityContainer.style.background = 'linear-gradient(135deg, #00b894 0%, #55a3ff 100%)';
+    }} else if (viability >= 70) {{
+        viabilityContainer.style.background = 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)';
+    }} else if (viability >= 50) {{
+        viabilityContainer.style.background = 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)';
+    }} else {{
+        viabilityContainer.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+    }}
     
     // Streamlit에 데이터 전송
-    window.parent.postMessage({
-        type: 'streamlit:setComponentValue',
-        value: {
-            counter_a: counterA,
-            counter_f: counterF,
-            viability: viability,
-            total: totalCells
-        }
-    }, '*');
-}
+    try {{
+        window.parent.postMessage({{
+            type: 'streamlit:setComponentValue',
+            value: {{
+                counter_a: counterA,
+                counter_f: counterF,
+                viability: viability,
+                total: totalCells
+            }}
+        }}, '*');
+    }} catch (e) {{
+        console.log('데이터 전송 실패:', e);
+    }}
+}}
 
-function resetCounters() {
+function resetCounters() {{
     counterA = 0;
     counterF = 0;
     updateDisplay();
-}
+}}
 
-function resetA() {
+function resetA() {{
     counterA = 0;
     updateDisplay();
-}
+}}
 
-function resetF() {
+function resetF() {{
     counterF = 0;
     updateDisplay();
-}
+}}
 
-// 키보드 이벤트 리스너
-document.getElementById('boardCounter').addEventListener('down', function(event) {
+// 키보드 이벤트 리스너 - 수정된 부분
+document.getElementById('keyboardCounter').addEventListener('keydown', function(event) {{
     // 첫 번째 키 입력 시 오디오 컨텍스트 활성화
-    if (!audioContext) {
+    if (!audioContext) {{
         initAudio();
-    }
+    }}
     
-    if (event. === 'a' || event. === 'A') {
+    if (event.key === 'a' || event.key === 'A') {{
         counterA++;
-        playSoundA(); // A키 소리
+        playSoundA();
         updateDisplay();
         event.preventDefault();
-    } else if (event.key === 'f' || event.key === 'F') {
+    }} else if (event.key === 'f' || event.key === 'F') {{
         counterF++;
-        playSoundF(); // F키 소리
+        playSoundF();
         updateDisplay();
         event.preventDefault();
-    }
-});
+    }}
+}});
 
 // 클릭하면 포커스 설정
-document.getElementById('keyboardCounter').addEventListener('click', function() {
+document.getElementById('keyboardCounter').addEventListener('click', function() {{
     this.focus();
-});
+}});
 
-// 포커스 가능하게 만들기
-document.getElementById('keyboardCounter').setAttribute('tabindex', '0');
+// 포커스 스타일 추가
+document.getElementById('keyboardCounter').addEventListener('focus', function() {{
+    this.style.border = '2px solid #007bff';
+    this.style.boxShadow = '0 0 10px rgba(0,123,255,0.3)';
+}});
+
+document.getElementById('keyboardCounter').addEventListener('blur', function() {{
+    this.style.border = '2px solid #ddd';
+    this.style.boxShadow = 'none';
+}});
 
 // 초기 디스플레이 업데이트
 updateDisplay();
 
 // 페이지 로드 시 포커스 설정
-window.addEventListener('load', function() {
+setTimeout(function() {{
     document.getElementById('keyboardCounter').focus();
-});
+}}, 100);
 </script>
 """
 
 # JavaScript 컴포넌트 표시
 component_value = components.html(js_code, height=700)
 
-# 카운터 값 업데이트 (JavaScript에서 받은 데이터)
+# 카운터 값 업데이트
 if component_value and isinstance(component_value, dict):
     if 'counter_a' in component_value:
         st.session_state.counter_a = component_value['counter_a']
     if 'counter_f' in component_value:
         st.session_state.counter_f = component_value['counter_f']
-
-# 간단한 상태 표시만 유지
 
 # 사용법 안내
 with st.expander("📖 사용법"):
@@ -228,7 +237,7 @@ with st.expander("📖 사용법"):
     4. **Viability**가 실시간으로 계산됩니다: Live / (Live + Dead) × 100
            
     ### 💡 팁
-    - 박스가 검정색 테두리로 둘러싸이면 활성화된 상태입니다
+    - 박스가 파란색 테두리로 둘러싸이면 활성화된 상태입니다
     - Viability 색상이 결과에 따라 자동으로 변경됩니다
     - 각 셀 타입별로 다른 소리가 재생됩니다
     - 리셋 버튼으로 개별 또는 전체 카운터를 초기화할 수 있습니다
@@ -236,20 +245,7 @@ with st.expander("📖 사용법"):
 
 # 정보 표시
 st.markdown("---")
-st.info("SMC 이식외과".format(
+st.info("SMC 이식외과 - Live: {} cells, Dead: {} cells".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
-
-
-
-
-
-
-
-
-
-
-
-
-
