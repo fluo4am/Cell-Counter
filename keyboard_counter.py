@@ -19,47 +19,49 @@ st.title("🧬 Cell Counter & Viability Calculator")
 
 # JavaScript 키보드 감지 코드
 js_code = """
-<div id="keyboardCounter" style="padding: 20px; border: 2px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
-    <h3 style="text-align: center; color: #333;">Cell Counter</h3>
-    <p style="text-align: center; color: #666; margin-bottom: 20px;">
+<div id="keyboardCounter" style="padding: 30px; border: 2px solid #ddd; border-radius: 15px; background-color: #f9f9f9; min-height: 600px;">
+    <h2 style="text-align: center; color: #333; margin-bottom: 10px;">Cell Counter</h2>
+    <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 16px;">
         이 영역을 클릭한 후 A (Live) 또는 F (Dead) 키를 누르세요
     </p>
     
-    <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+    <div style="display: flex; justify-content: space-around; margin: 30px 0;">
         <div style="text-align: center;">
-            <h4>🟢 Live Cells (A키)</h4>
-            <div id="counterA" style="font-size: 48px; font-weight: bold; color: #00b894; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">0</div>
+            <h3 style="color: #00b894; margin-bottom: 15px;">🟢 Live Cells (A키)</h3>
+            <div id="counterA" style="font-size: 56px; font-weight: bold; color: #00b894; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">0</div>
         </div>
         <div style="text-align: center;">
-            <h4>🔴 Dead Cells (F키)</h4>
-            <div id="counterF" style="font-size: 48px; font-weight: bold; color: #e74c3c; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">0</div>
+            <h3 style="color: #e74c3c; margin-bottom: 15px;">🔴 Dead Cells (F키)</h3>
+            <div id="counterF" style="font-size: 56px; font-weight: bold; color: #e74c3c; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">0</div>
         </div>
     </div>
     
-    <!-- Viability 섹션 추가 -->
-    <div style="text-align: center; margin: 20px 0; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
-        <h3 style="margin: 0 0 10px 0;">📊 Cell Viability</h3>
-        <div id="viability" style="font-size: 36px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">0.0%</div>
-        <div style="font-size: 14px; margin-top: 5px; opacity: 0.9;">
+    <!-- Viability 섹션 -->
+    <div style="text-align: center; margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white;">
+        <h2 style="margin: 0 0 15px 0;">📊 Cell Viability</h2>
+        <div id="viability" style="font-size: 48px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 10px;">0.0%</div>
+        <div style="font-size: 16px; opacity: 0.9;">
             <span id="totalCells">Total: 0 cells</span>
         </div>
     </div>
     
-    <div style="text-align: center; margin-top: 20px;">
-        <button onclick="resetCounters()" style="background: #ff7979; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">전체 리셋</button>
-        <button onclick="resetA()" style="background: #00b894; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">Live 리셋</button>
-        <button onclick="resetF()" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">Dead 리셋</button>
+    <!-- 리셋 버튼들 -->
+    <div style="text-align: center; margin: 25px 0;">
+        <button onclick="resetCounters()" style="background: #ff7979; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🔄 전체 리셋</button>
+        <button onclick="resetA()" style="background: #00b894; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🟢 Live 리셋</button>
+        <button onclick="resetF()" style="background: #e74c3c; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; font-size: 14px; font-weight: bold;">🔴 Dead 리셋</button>
     </div>
     
-    <div style="text-align: center; margin: 15px 0;">
-        <button onclick="playSoundA()" style="background: #fd79a8; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 12px;">🔊 Live 소리</button>
-        <button onclick="playSoundF()" style="background: #fdcb6e; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 12px;">🔊 Dead 소리</button>
+    <!-- 소리 테스트 버튼들 -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button onclick="playSoundA()" style="background: #fd79a8; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 12px;">🔊 Live 소리</button>
+        <button onclick="playSoundF()" style="background: #fdcb6e; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 12px;">🔊 Dead 소리</button>
     </div>
     
-    <p style="text-align: center; color: #888; margin-top: 20px; font-size: 14px;">
-        💡 팁: 이 박스를 클릭한 후 키보드를 사용하세요<br>
-        🔊 A키: Live cell (높은음) | F키: Dead cell (낮은음)
-    </p>
+    <div style="text-align: center; color: #888; margin-top: 25px; font-size: 14px; line-height: 1.5;">
+        💡 <strong>사용법:</strong> 이 박스를 클릭한 후 키보드를 사용하세요<br>
+        🔊 A키: Live cell (높은음 800Hz) | F키: Dead cell (낮은음 400Hz)
+    </div>
 </div>
 
 <script>
@@ -213,7 +215,7 @@ window.addEventListener('load', function() {
 """
 
 # JavaScript 컴포넌트 표시
-component_value = components.html(js_code, height=400)
+component_value = components.html(js_code, height=650)
 
 # 카운터 값 업데이트 (JavaScript에서 받은 데이터)
 if component_value and isinstance(component_value, dict):
