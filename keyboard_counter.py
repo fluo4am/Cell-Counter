@@ -15,7 +15,7 @@ if 'counter_f' not in st.session_state:
     st.session_state.counter_f = 0
 
 # 제목
-st.title("🔢 키보드 카운터")
+st.title("🔢 키보드 카운터 엄태영 바보 ")
 
 # JavaScript 키보드 감지 코드
 js_code = """
@@ -209,3 +209,4 @@ st.info("🔢 현재 상태 - A키 카운터: {} | F키 카운터: {}".format(
     st.session_state.counter_a, 
     st.session_state.counter_f
 ))
+
