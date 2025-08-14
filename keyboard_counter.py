@@ -273,8 +273,11 @@ with st.expander("📖 사용법"):
 
 # 정보 표시
 st.markdown("---")
-
+st.info("🔢 현재 상태 - A키 카운터: {} | F키 카운터: {}".format(
+    st.session_state.counter_a, 
+    st.session_state.counter_f
 ))
+
 
 
 
