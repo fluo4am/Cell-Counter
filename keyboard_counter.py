@@ -105,9 +105,49 @@ function playSoundA() {{
     playSound(800, 150);
 }}
 
-// S키 소리 (낮은 톤)
+// S키 소리 (개소리 - 짧은 울음소리)
 function playSoundS() {{
-    playSound(400, 150);
+    playDogBark();
+}}
+
+// 개소리 생성 함수
+function playDogBark() {{
+    try {{
+        if (!audioContext) {{
+            initAudio();
+        }}
+        
+        if (audioContext && audioContext.state === 'running') {{
+            // 개소리는 여러 주파수의 조합으로 만듦
+            const frequencies = [150, 300, 600, 900];
+            const duration = 0.3;
+            
+            frequencies.forEach((freq, index) => {{
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // 노이즈 효과를 위한 주파수 변조
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(freq * 0.7, audioContext.currentTime + duration);
+                
+                // 사각파로 거친 소리 만들기
+                oscillator.type = index % 2 === 0 ? 'sawtooth' : 'square';
+                
+                // 볼륨 엔벨로프 (빠른 어택, 빠른 디케이)
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime + index * 0.05);
+                oscillator.stop(audioContext.currentTime + duration);
+            }});
+        }}
+    }} catch (e) {{
+        console.log('개소리 재생 실패:', e);
+    }}
 }}
 
 function updateDisplay() {{
