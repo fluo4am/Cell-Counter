@@ -3,8 +3,8 @@ import streamlit.components.v1 as components
 
 # 페이지 설정
 st.set_page_config(
-    page_title="키보드 카운터",
-    page_icon="🔢",
+    page_title="Cell Counter",
+    page_icon="🧬",
     layout="centered"
 )
 
@@ -13,13 +13,41 @@ if 'counter_a' not in st.session_state:
     st.session_state.counter_a = 0  # Live cells
 if 'counter_s' not in st.session_state:
     st.session_state.counter_s = 0  # Dead cells
+if 'squares_counted' not in st.session_state:
+    st.session_state.squares_counted = 4  # 기본값 4칸
 
 # 제목
-st.title("🧬 Cell Counter")
+st.title("🧬 Cell Counter & Concentration Calculator")
+
+# 칸 수 입력 섹션
+col1, col2 = st.columns([2, 3])
+with col1:
+    squares = st.number_input(
+        "🔢 카운팅한 칸 수",
+        min_value=1,
+        max_value=25,
+        value=st.session_state.squares_counted,
+        step=1,
+        help="혈구계에서 세포를 센 칸의 개수를 입력하세요"
+    )
+    st.session_state.squares_counted = squares
+
+with col2:
+    # 농도 계산
+    live_cells = st.session_state.counter_a
+    if squares > 0 and live_cells > 0:
+        concentration = (live_cells * 2 / squares) * 10000
+        st.metric(
+            "📊 세포 농도",
+            f"{concentration:,.0f} cells/mL",
+            help="Live cell 수 × 2 ÷ 칸 × 10,000"
+        )
+    else:
+        st.metric("📊 세포 농도", "0 cells/mL")
 
 # JavaScript 키보드 감지 코드
 js_code = f"""
-<div id="keyboardCounter" style="padding: 30px; border: 2px solid #ddd; border-radius: 15px; background-color: #f9f9f9; min-height: 600px; outline: none;" tabindex="0">
+<div id="keyboardCounter" style="padding: 30px; border: 2px solid #ddd; border-radius: 15px; background-color: #f9f9f9; min-height: 550px; outline: none;" tabindex="0">
     
     <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 16px;">
         이 영역을 클릭한 후 A (Live) 또는 S (Dead) 키를 누르세요
@@ -28,11 +56,11 @@ js_code = f"""
     <div style="display: flex; justify-content: space-around; margin: 30px 0;">
         <div style="text-align: center;">
             <h3 style="color: #00b894; margin-bottom: 15px;">🟢 Live Cells (A키)</h3>
-            <div id="counterA" style="font-size: 56px; font-weight: bold; color: #00b894; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">0</div>
+            <div id="counterA" style="font-size: 56px; font-weight: bold; color: #00b894; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">{st.session_state.counter_a}</div>
         </div>
         <div style="text-align: center;">
             <h3 style="color: #e74c3c; margin-bottom: 15px;">🔴 Dead Cells (S키)</h3>
-            <div id="counterS" style="font-size: 56px; font-weight: bold; color: #e74c3c; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">0</div>
+            <div id="counterS" style="font-size: 56px; font-weight: bold; color: #e74c3c; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 120px;">{st.session_state.counter_s}</div>
         </div>
     </div>
     
@@ -105,7 +133,7 @@ function playSoundA() {{
     playSound(800, 150);
 }}
 
-// S키 소리 (개소리 - 짧은 울음소리)
+// S키 소리 (개소리)
 function playSoundS() {{
     playDogBark();
 }}
@@ -118,7 +146,6 @@ function playDogBark() {{
         }}
         
         if (audioContext && audioContext.state === 'running') {{
-            // 개소리는 여러 주파수의 조합으로 만듦
             const frequencies = [150, 300, 600, 900];
             const duration = 0.3;
             
@@ -129,14 +156,11 @@ function playDogBark() {{
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                // 노이즈 효과를 위한 주파수 변조
                 oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
                 oscillator.frequency.exponentialRampToValueAtTime(freq * 0.7, audioContext.currentTime + duration);
                 
-                // 사각파로 거친 소리 만들기
                 oscillator.type = index % 2 === 0 ? 'sawtooth' : 'square';
                 
-                // 볼륨 엔벨로프 (빠른 어택, 빠른 디케이)
                 gainNode.gain.setValueAtTime(0, audioContext.currentTime);
                 gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.02);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
@@ -210,9 +234,8 @@ function resetS() {{
     updateDisplay();
 }}
 
-// 키보드 이벤트 리스너 - 수정된 부분
+// 키보드 이벤트 리스너
 document.getElementById('keyboardCounter').addEventListener('keydown', function(event) {{
-    // 첫 번째 키 입력 시 오디오 컨텍스트 활성화
     if (!audioContext) {{
         initAudio();
     }}
@@ -266,26 +289,78 @@ if component_value and isinstance(component_value, dict):
     if 'counter_s' in component_value:
         st.session_state.counter_s = component_value['counter_s']
 
+# 상세 정보 표시
+st.markdown("---")
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.metric("🟢 Live Cells", st.session_state.counter_a)
+
+with col2:
+    st.metric("🔴 Dead Cells", st.session_state.counter_s)
+
+with col3:
+    total = st.session_state.counter_a + st.session_state.counter_s
+    if total > 0:
+        viability = (st.session_state.counter_a / total) * 100
+        st.metric("📊 Viability", f"{viability:.1f}%")
+    else:
+        st.metric("📊 Viability", "0.0%")
+
+with col4:
+    if squares > 0 and st.session_state.counter_a > 0:
+        conc = (st.session_state.counter_a * 2 / squares) * 10000
+        st.metric("🧪 농도", f"{conc:,.0f}")
+    else:
+        st.metric("🧪 농도", "0")
+
+# 계산식 설명
+with st.expander("📐 농도 계산식"):
+    st.markdown("""
+    ### 세포 농도 계산 공식
+    
+    ```
+    세포 농도 (cells/mL) = Live cell 수 × 2 ÷ 칸 수 × 10,000
+    ```
+    
+    #### 예시:
+    - **Live cells**: 50개
+    - **카운팅한 칸**: 4칸
+    - **계산**: 50 × 2 ÷ 4 × 10,000 = **250,000 cells/mL**
+    
+    #### 설명:
+    - **× 2**: 혈구계 희석 배수
+    - **÷ 칸 수**: 여러 칸의 평균값
+    - **× 10,000**: 혈구계 부피 보정 계수
+    """)
+
 # 사용법 안내
 with st.expander("📖 사용법"):
     st.markdown("""
     ### 키보드 셀 카운터 사용법
     
-    1. **위의 회색 박스를 클릭**하여 활성화하세요
-    2. **A키**를 누르면 Live Cell 카운터가 증가합니다 🟢
-    3. **S키**를 누르면 Dead Cell 카운터가 증가합니다 🔴
-    4. **Viability**가 실시간으로 계산됩니다: Live / (Live + Dead) × 100
-           
+    1. **칸 수 입력**: 상단에서 카운팅한 칸의 개수를 입력하세요
+    2. **박스 클릭**: 회색 박스를 클릭하여 활성화하세요
+    3. **A키**: Live Cell 카운터가 증가합니다 🟢
+    4. **S키**: Dead Cell 카운터가 증가합니다 🔴
+    5. **자동 계산**: Viability와 세포 농도가 실시간으로 계산됩니다
+    
+    ### 🧬 Cell Viability 해석
+    - **90% 이상**: 🎉 Excellent (매우 우수)
+    - **70-89%**: 👍 Good (양호)  
+    - **50-69%**: ⚠️ Moderate (보통)
+    - **50% 미만**: ❌ Low (낮음)
+    
     ### 💡 팁
     - 박스가 파란색 테두리로 둘러싸이면 활성화된 상태입니다
-    - Viability 색상이 결과에 따라 자동으로 변경됩니다
     - 각 셀 타입별로 다른 소리가 재생됩니다
     - 리셋 버튼으로 개별 또는 전체 카운터를 초기화할 수 있습니다
     """)
 
 # 정보 표시
-st.markdown("---")
-st.info("SMC 이식외과 - Live: {} cells, Dead: {} cells".format(
+st.info("🏥 SMC 이식외과 - Live: {} cells | Dead: {} cells | Concentration: {:,.0f} cells/mL".format(
     st.session_state.counter_a, 
-    st.session_state.counter_s
+    st.session_state.counter_s,
+    (st.session_state.counter_a * 2 / st.session_state.squares_counted * 10000) if st.session_state.counter_a > 0 else 0
 ))
