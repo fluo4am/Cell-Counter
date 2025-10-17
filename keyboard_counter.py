@@ -20,10 +20,12 @@ if 'squares_counted' not in st.session_state:
 st.title("🧬 Cell Counter & Concentration Calculator")
 
 # 칸 수 입력 섹션
-col1, col2 = st.columns([2, 3])
+st.markdown("### 📊 세포 농도 계산")
+col1, col2, col3 = st.columns([2, 2, 2])
+
 with col1:
     squares = st.number_input(
-        "🔢 카운팅한 칸 수",
+        "카운팅한 칸 수",
         min_value=1,
         max_value=25,
         value=st.session_state.squares_counted,
@@ -33,17 +35,24 @@ with col1:
     st.session_state.squares_counted = squares
 
 with col2:
-    # 농도 계산
-    live_cells = st.session_state.counter_a
-    if squares > 0 and live_cells > 0:
-        concentration = (live_cells * 2 / squares) * 10000
-        st.metric(
-            "📊 세포 농도",
-            f"{concentration:,.0f} cells/mL",
-            help="Live cell 수 × 2 ÷ 칸 × 10,000"
-        )
-    else:
-        st.metric("📊 세포 농도", "0 cells/mL")
+    calculate_btn = st.button("🧪 세포농도 계산하기", type="primary", use_container_width=True)
+
+with col3:
+    # 계산 버튼을 눌렀을 때만 농도 계산
+    if calculate_btn or 'show_concentration' in st.session_state:
+        if calculate_btn:
+            st.session_state.show_concentration = True
+        
+        live_cells = st.session_state.counter_a
+        if squares > 0 and live_cells > 0:
+            concentration = (live_cells * 2 / squares) * 10000
+            st.metric(
+                "세포 농도",
+                f"{concentration:,.0f} cells/mL",
+                help="Live cell 수 × 2 ÷ 칸 × 10,000"
+            )
+        else:
+            st.metric("세포 농도", "0 cells/mL")
 
 # JavaScript 키보드 감지 코드
 js_code = f"""
@@ -291,8 +300,9 @@ if component_value and isinstance(component_value, dict):
 
 # 상세 정보 표시
 st.markdown("---")
+st.markdown("### 📈 카운팅 결과")
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     st.metric("🟢 Live Cells", st.session_state.counter_a)
@@ -308,12 +318,29 @@ with col3:
     else:
         st.metric("📊 Viability", "0.0%")
 
-with col4:
-    if squares > 0 and st.session_state.counter_a > 0:
-        conc = (st.session_state.counter_a * 2 / squares) * 10000
-        st.metric("🧪 농도", f"{conc:,.0f}")
+# 농도 계산 결과 표시 (버튼을 눌렀을 때만)
+if 'show_concentration' in st.session_state and st.session_state.show_concentration:
+    st.markdown("---")
+    st.markdown("### 🧪 최종 계산 결과")
+    
+    live_cells = st.session_state.counter_a
+    squares = st.session_state.squares_counted
+    
+    if live_cells > 0 and squares > 0:
+        concentration = (live_cells * 2 / squares) * 10000
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.info(f"**Live cells**: {live_cells}개")
+        with col2:
+            st.info(f"**카운팅한 칸**: {squares}칸")
+        with col3:
+            st.success(f"**세포 농도**: {concentration:,.0f} cells/mL")
+        
+        # 계산식 표시
+        st.latex(r"\text{농도} = \frac{" + str(live_cells) + r" \times 2}{" + str(squares) + r"} \times 10000 = " + f"{concentration:,.0f}" + r"\text{ cells/mL}")
     else:
-        st.metric("🧪 농도", "0")
+        st.warning("⚠️ Live cell을 카운팅한 후 계산해주세요.")
 
 # 계산식 설명
 with st.expander("📐 농도 계산식"):
@@ -359,8 +386,14 @@ with st.expander("📖 사용법"):
     """)
 
 # 정보 표시
-st.info("🏥 SMC 이식외과 - Live: {} cells | Dead: {} cells | Concentration: {:,.0f} cells/mL".format(
+concentration_text = ""
+if 'show_concentration' in st.session_state and st.session_state.show_concentration:
+    if st.session_state.counter_a > 0 and st.session_state.squares_counted > 0:
+        conc = (st.session_state.counter_a * 2 / st.session_state.squares_counted * 10000)
+        concentration_text = f" | Concentration: {conc:,.0f} cells/mL"
+
+st.info("🏥 SMC 이식외과 - Live: {} cells | Dead: {} cells{}".format(
     st.session_state.counter_a, 
     st.session_state.counter_s,
-    (st.session_state.counter_a * 2 / st.session_state.squares_counted * 10000) if st.session_state.counter_a > 0 else 0
+    concentration_text
 ))
