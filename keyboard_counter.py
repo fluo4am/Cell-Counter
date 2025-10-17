@@ -298,26 +298,6 @@ if component_value and isinstance(component_value, dict):
     if 'counter_s' in component_value:
         st.session_state.counter_s = component_value['counter_s']
 
-# 상세 정보 표시
-st.markdown("---")
-st.markdown("### 📈 카운팅 결과")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric("🟢 Live Cells", st.session_state.counter_a)
-
-with col2:
-    st.metric("🔴 Dead Cells", st.session_state.counter_s)
-
-with col3:
-    total = st.session_state.counter_a + st.session_state.counter_s
-    if total > 0:
-        viability = (st.session_state.counter_a / total) * 100
-        st.metric("📊 Viability", f"{viability:.1f}%")
-    else:
-        st.metric("📊 Viability", "0.0%")
-
 # 농도 계산 결과 표시 (버튼을 눌렀을 때만)
 if calculate_btn:
     st.session_state.show_concentration = True
