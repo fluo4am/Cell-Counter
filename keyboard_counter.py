@@ -284,10 +284,17 @@ component_value = components.html(js_code, height=700)
 
 # 카운터 값 업데이트
 if component_value and isinstance(component_value, dict):
+    old_a = st.session_state.counter_a
+    old_s = st.session_state.counter_s
+    
     if 'counter_a' in component_value:
         st.session_state.counter_a = component_value['counter_a']
     if 'counter_s' in component_value:
         st.session_state.counter_s = component_value['counter_s']
+    
+    # 값이 변경되었으면 페이지 새로고침
+    if old_a != st.session_state.counter_a or old_s != st.session_state.counter_s:
+        st.rerun()
 
 # 상세 정보 표시
 st.markdown("---")
