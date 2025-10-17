@@ -314,16 +314,26 @@ if 'show_concentration' in st.session_state and st.session_state.show_concentrat
     if calc_live > 0 and calc_squares > 0:
         concentration = (calc_live * 2 / calc_squares) * 10000
         
+        # 과학적 표기법으로 변환
+        scientific_notation = f"{concentration:.1e}"
+        
         col1, col2, col3 = st.columns(3)
         with col1:
             st.info(f"**Live cells**: {calc_live}개")
         with col2:
             st.info(f"**카운팅한 칸**: {calc_squares}칸")
         with col3:
-            st.success(f"**세포 농도**: {concentration:,.0f} cells/mL")
+            st.success(f"**세포 농도**: {scientific_notation} cells/mL")
         
-        # 계산식 표시
-        st.latex(r"\text{농도} = \frac{" + str(calc_live) + r" \times 2}{" + str(calc_squares) + r"} \times 10000 = " + f"{concentration:,.0f}" + r"\text{ cells/mL}")
+        # 계산식 표시 (과학적 표기법)
+        # concentration을 A.B × 10^n 형태로 분해
+        import math
+        if concentration > 0:
+            exponent = int(math.floor(math.log10(concentration)))
+            mantissa = concentration / (10 ** exponent)
+            st.latex(r"\text{농도} = \frac{" + str(calc_live) + r" \times 2}{" + str(calc_squares) + r"} \times 10000 = " + f"{mantissa:.1f}" + r" \times 10^{" + str(exponent) + r"} \text{ cells/mL}")
+        else:
+            st.latex(r"\text{농도} = 0 \text{ cells/mL}")
     else:
         st.warning("⚠️ Live cell 수와 칸 수를 입력한 후 계산해주세요.")
 
@@ -339,7 +349,7 @@ with st.expander("📐 농도 계산식"):
     #### 예시:
     - **Live cells**: 50개
     - **카운팅한 칸**: 4칸
-    - **계산**: 50 × 2 ÷ 4 × 10,000 = **250,000 cells/mL**
+    - **계산**: 50 × 2 ÷ 4 × 10,000 = 250,000 = **2.5 × 10⁵ cells/mL**
     
     #### 설명:
     - **× 2**: 혈구계 희석 배수
@@ -383,7 +393,8 @@ if 'show_concentration' in st.session_state and st.session_state.show_concentrat
     calc_squares = st.session_state.get('calculated_squares', 1)
     if calc_live > 0 and calc_squares > 0:
         conc = (calc_live * 2 / calc_squares * 10000)
-        concentration_text = f" | Concentration: {conc:,.0f} cells/mL"
+        scientific = f"{conc:.1e}"
+        concentration_text = f" | Concentration: {scientific} cells/mL"
 
 st.info("🏥 SMC 이식외과 - Live: {} cells | Dead: {} cells{}".format(
     st.session_state.counter_a, 
