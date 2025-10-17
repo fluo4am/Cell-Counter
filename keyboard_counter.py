@@ -280,21 +280,14 @@ setTimeout(function() {{
 """
 
 # JavaScript 컴포넌트 표시
-component_value = components.html(js_code, height=700, key="cell_counter")
+component_value = components.html(js_code, height=700)
 
-# 카운터 값 업데이트
-update_needed = False
+# 카운터 값 업데이트 - rerun 제거
 if component_value and isinstance(component_value, dict):
-    if 'counter_a' in component_value and component_value['counter_a'] != st.session_state.counter_a:
+    if 'counter_a' in component_value:
         st.session_state.counter_a = component_value['counter_a']
-        update_needed = True
-    if 'counter_s' in component_value and component_value['counter_s'] != st.session_state.counter_s:
+    if 'counter_s' in component_value:
         st.session_state.counter_s = component_value['counter_s']
-        update_needed = True
-
-# 값이 변경되었으면 페이지 새로고침
-if update_needed:
-    st.rerun()
 
 # 상세 정보 표시
 st.markdown("---")
